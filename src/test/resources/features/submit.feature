@@ -51,33 +51,26 @@ Feature: make a submission
     When request is performed
     Then http status code "200" is returned with body:
     """
-       {
-          "accno": "S-BSST123",
-          "attributes": [
-            {
-              "name": "Title",
-              "value": "Simple Submission with a file"
-            }
-          ],
-          "section": {
-            "type": "Study",
-            "files": [
-
-                {
-                  "path": "example.txt",
-                  "size": 14,
-                  "attributes": [
-                      {
-                          "name": "md5",
-                          "value": "NOT_CALCULATED"
-                      }
-                  ],
-                  "type": "file"
-                }
-             ]
-          },
-          "type": "submission"
-       }
+    {
+      "accno" : "S-BSST123",
+      "attributes" : [ {
+        "name" : "Title",
+        "value" : "Sample Submission"
+      } ],
+      "section" : {
+        "type" : "Study",
+        "files" : [ {
+          "path" : "example.txt",
+          "size" : 16,
+          "attributes" : [ {
+            "name" : "md5",
+            "value" : "NOT_CALCULATED"
+          } ],
+          "type" : "file"
+        } ]
+      },
+      "type" : "submission"
+    }
     """
     And the file "$ftpUrl/S-BSST/123/S-BSST123/Files/example.txt" contains:
       """
