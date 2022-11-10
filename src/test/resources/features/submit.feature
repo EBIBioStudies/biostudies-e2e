@@ -2,8 +2,10 @@ Feature: make a submission
 
   Background: Here is the setup for the scenarios
     Given the setup information
-      | environmentUrl   | ftpUrl   | userName             | userPassword |
-      | environment/path | ftp/path | admin_user@ebi.ac.uk | 123456       |
+      | environmentUrl | http://localhost:8080 |
+      | ftpUrl         | ftp/path              |
+      | userName       | admin_user@ebi.ac.uk  |
+      | userPassword   | 123456                |
     And a http request with body:
       """
       {
@@ -13,7 +15,7 @@ Feature: make a submission
       """
     * url path "$environmentUrl/auth/login"
     * http method "POST"
-    When request is performed
+    When json request is performed
     Then http status code "200" is returned
     And http response the JSONPath value "$.sessid" is saved into "token"
 
@@ -23,15 +25,13 @@ Feature: make a submission
       Sample content
     """
     And a http request with form-data body:
-      | key   | value        |
       | files | $example.txt |
     * url path "$environmentUrl/files/user"
     * http method "POST"
     * headers
-      | key             | value      |
       | X-Session-Token | $token     |
       | Submission_Type | text/plain |
-    When request is performed
+    When multipart request is performed
     Then http status code "200" is returned
 
     Given a http request with body:
@@ -45,6 +45,9 @@ Feature: make a submission
       """
     * url path "$environmentUrl/submissions"
     * http method "POST"
+    * headers
+      | X-Session-Token | $token     |
+      | Submission_Type | text/plain |
     When request is performed
     Then http status code "200" is returned with body:
     """
@@ -75,7 +78,7 @@ Feature: make a submission
           },
           "type": "submission"
        }
-       """
+    """
     And the file "$ftpUrl/S-BSST/123/S-BSST123/Files/example.txt" contains:
       """
         Sample content

@@ -21,6 +21,9 @@ dependencies {
     testImplementation("org.springframework:spring-web:5.3.23")// enables restTemplate
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
+    testImplementation("org.assertj:assertj-core:3.23.1")
+    implementation("com.jayway.jsonpath:json-path:2.7.0")
+
     testImplementation(kotlin("test"))
 }
 
@@ -33,5 +36,5 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("RunCucumberTestKt")
 }

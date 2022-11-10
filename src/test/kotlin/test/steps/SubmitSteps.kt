@@ -1,98 +1,159 @@
 package test.steps
 
+import com.jayway.jsonpath.JsonPath
 import io.cucumber.datatable.DataTable
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
+import org.assertj.core.api.Assertions.assertThat
+import org.springframework.core.io.FileSystemResource
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.http.MediaType.*
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
-import test.common.JsonMapper.Companion.createMapper
-import test.common.LoginUser
-import test.common.toHttpMethod
-import test.steps.Stage.LOGIN
-
-enum class Stage {
-    LOGIN, UPLOAD_FILE, SUBMIT
-}
+import test.common.*
+import java.nio.file.Files
+import java.util.*
+import kotlin.io.path.createFile
+import kotlin.io.path.name
+import kotlin.io.path.writeText
 
 class SubmitSteps {
-    lateinit var urlEnvironment: String
-    lateinit var ftpUrl: String
-    lateinit var userName: String
-    lateinit var password: String
-
-    val restTemplate = RestTemplate()
-    val jsonMapper = createMapper()
-    lateinit var loginObject: LoginUser
-
-    lateinit var requestPath: String
-    lateinit var httpMethod: HttpMethod
-    var stage: Stage = LOGIN
-    val headers: HttpHeaders = HttpHeaders()
-
+    private val restTemplate = RestTemplate()
+    private val variables: MutableMap<String, String> = mutableMapOf()
+    private val tempFile = Files.createTempDirectory("tempFolder").toFile()
+    private var formDataBodyRequest = LinkedMultiValueMap<String, Any>()
+    private val headers = HttpHeaders()
 
     @Given("the setup information")
     fun theSetupInformation(table: DataTable) {
-        val something: List<Map<String, String>> = table.asmap(String::class.java, String::class.java)
-        urlEnvironment = something.first()["environmentUrl"] ?: "defaultEnvironmentUrl"
-        ftpUrl = something.first()["ftpUrl"] ?: "defaultFtpUrl"
-        userName = something.first()["userName"] ?: "defaultUserName"
-        password = something.first()["userPassword"] ?: "defaultUserPassword"
+        variables.putAll(table.asMap())
     }
 
     @Given("a http request with body:")
     fun defineBodyRequest(body: String) {
-        if (stage == LOGIN) {
-            val cleanedBody = body.replace("\$userName", userName).replace("\$userPassword", password)
-            loginObject = jsonMapper.readValue(cleanedBody, LoginUser::class.java)
-        }
-
+        val cleanedBody = cleanEntry(body, variables)
+        variables[REQUEST_BODY] = cleanedBody
     }
 
     @And("url path {string}")
     fun setUrlPath(path: String) {
-        requestPath = path.replace("\$environmentUrl", urlEnvironment)
+        val cleanedUrlPath = cleanEntry(path, variables)
+
+        variables[REQUEST_URL] = cleanedUrlPath
     }
 
     @And("http method {string}")
     fun setHttpMethod(method: String) {
-        httpMethod = method.toHttpMethod()
+        variables[HTTP_METHOD] = method
     }
 
-    @When("request is performed")
-    fun performRequest() {
-        val response = restTemplate.postForEntity(urlEnvironment, loginObject, String::class.java)
+    @When("json request is performed")
+    fun performJsonRequest() {
+        headers.clean().addPlainTextContentType()
+        val httpEntity = HttpEntity(variables[REQUEST_BODY], headers)
 
+        val response =
+            restTemplate.postForEntity(requireNotNull(variables[REQUEST_URL]), httpEntity, String::class.java)
+
+        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
+        variables[RESPONSE_BODY] = requireNotNull(response.body)
     }
 
     @Then("http status code {string} is returned")
     fun getHttpCode(statusCode: String) {
+        assertThat(variables[HTTP_STATUS_CODE]).isEqualTo(statusCode)
     }
 
     @And("http response the JSONPath value {string} is saved into {string}")
-    fun fromHttpResponseIsExtractByJSONPathAndSaveInVariableNamed(value: String, name: String) {
-    }
+    fun fromHttpResponseIsExtractByJSONPathAndSaveInVariableNamed(jsonPath: String, name: String) {
+        val value = JsonPath.read<String>(variables[RESPONSE_BODY], jsonPath)
 
-    @And("header(s)")
-    fun setHttpHeaders(table: DataTable) {
-        val list = table.asMaps().forEach { headers.set(it["key"].toString(), it["value"]) }
-    }
-
-    @And("a http request with form-data body:")
-    fun setBodyInFormData(body: DataTable) {
-    }
-
-    @Then("http status code {string} is returned with body:")
-    fun getHttpStatusCodeAndBodyResponse(statusCode: String, body: String) {
+        variables[TOKEN_SESSION_ID] = value
     }
 
     @And("the file {string} with content")
     fun createFileWithContent(fileName: String, content: String) {
+        val file = tempFile.toPath().resolve(fileName).createFile().apply { writeText(content) }
+
+        variables["fileName"] = file.name
     }
 
+    @And("a http request with form-data body:")
+    fun setBodyInFormData(bodyTable: DataTable) {
+        val map = bodyTable.asMap()
+        val file = tempFile.resolve(requireNotNull(map["files"]).removePrefix("$")).canonicalFile
+
+        formDataBodyRequest.add("files", FileSystemResource(file))
+    }
+
+    @And("header(s)")
+    fun setHttpHeaders(table: DataTable) {
+        val map = table.asMap()
+
+        map.forEach { (key, value) -> headers.add(key, cleanEntry(value, variables)) }
+    }
+
+    @When("multipart request is performed")
+    fun performMultipartFileRequest() {
+        headers.clean().addTokenSession().addFormDataContentType()
+
+        val response =
+            restTemplate.postForEntity(
+                requireNotNull(variables[REQUEST_URL]),
+                HttpEntity(formDataBodyRequest, headers),
+                Void::class.java
+            )
+
+        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
+        variables.remove(REQUEST_BODY)
+    }
+
+    @When("request is performed")
+    fun performRequest() {
+        headers.clean().addTokenSession().addSubmissionType().apply { contentType = TEXT_PLAIN }
+        val httpEntity = HttpEntity(variables[REQUEST_BODY], headers)
+
+        val response =
+            restTemplate.postForEntity(requireNotNull(variables[REQUEST_URL]), httpEntity, String::class.java)
+
+        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
+        variables[RESPONSE_BODY] = requireNotNull(response.body)
+    }
+
+    @Then("http status code {string} is returned with body:")
+    fun getHttpStatusCodeAndBodyResponse(statusCode: String, body: String) {
+        assertThat(variables[HTTP_STATUS_CODE]).isEqualTo(statusCode)
+        assertThat(variables[RESPONSE_BODY]?.trim()).isEqualTo(body.trim())
+    }
     @And("the file {string} contains:")
     fun assertTheFileContains(fileName: String, content: String) {
+    }
+    private fun HttpHeaders.addTokenSession(): HttpHeaders {
+        headers.add(TOKEN_SESSION_ID_HEADER, variables[TOKEN_SESSION_ID])
+        return this
+    }
+
+    private fun HttpHeaders.addFormDataContentType(): HttpHeaders {
+        this.add(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
+        return this
+    }
+
+    private fun HttpHeaders.addPlainTextContentType(): HttpHeaders {
+        this.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        return this
+    }
+
+    private fun HttpHeaders.addSubmissionType(): HttpHeaders {
+        this.add(SUBMISSION_TYPE_HEADER, TEXT_PLAIN_VALUE)
+        return this
+    }
+
+    private fun HttpHeaders.clean(): HttpHeaders {
+        this.clear()
+        return this
     }
 }
