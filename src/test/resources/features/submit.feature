@@ -3,7 +3,7 @@ Feature: make a submission
   Background: Here is the setup for the scenarios
     Given the setup information
       | environmentUrl | http://localhost:8080 |
-      | ftpUrl         | ftp/path              |
+      | ftpUrl         | /Users/miguel/Biostudies/ftp              |
       | userName       | admin_user@ebi.ac.uk  |
       | userPassword   | 123456                |
     And a http request with body:
@@ -36,8 +36,9 @@ Feature: make a submission
 
     Given a http request with body:
       """
-      Submission	S-BSST123
+      Submission	S-BSST125
       Title	Sample Submission
+      ReleaseDate	2021-02-12
 
       Study
 
@@ -52,10 +53,13 @@ Feature: make a submission
     Then http status code "200" is returned with body:
     """
     {
-      "accno" : "S-BSST123",
+      "accno" : "S-BSST125",
       "attributes" : [ {
         "name" : "Title",
         "value" : "Sample Submission"
+      }, {
+        "name" : "ReleaseDate",
+        "value" : "2021-02-12"
       } ],
       "section" : {
         "type" : "Study",
@@ -72,26 +76,29 @@ Feature: make a submission
       "type" : "submission"
     }
     """
-    And the file "$ftpUrl/S-BSST/123/S-BSST123/Files/example.txt" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/Files/example.txt" contains:
       """
         Sample content
       """
-    And the file "$ftpUrl/S-BSST/123/S-BSST123/S-BSST123.json" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.json" contains:
       """
       {
-        "accno" : "S-BSST123",
+        "accno" : "S-BSST125",
         "attributes" : [ {
           "name" : "Title",
-          "value" : "Simple Submission with a file"
+          "value" : "Sample Submission"
+        }, {
+          "name" : "ReleaseDate",
+          "value" : "2021-02-12"
         } ],
         "section" : {
           "type" : "Study",
           "files" : [ {
             "path" : "example.txt",
-            "size" : 14,
+            "size" : 16,
             "attributes" : [ {
               "name" : "md5",
-              "value" : "01A33621980DDF27A6538708D5E93C53"
+              "value" : "20836FBD4CE5DC65F84CA2FBF938B926"
             } ],
             "type" : "file"
           } ]
@@ -99,35 +106,40 @@ Feature: make a submission
         "type" : "submission"
       }
       """
-    And the file "$ftpUrl/S-BSST/123/S-BSST123/S-BSST123.tsv" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.tsv" contains:
       """
-      Submission	S-BSST123
-      Title	Simple Submission with a file
+      Submission	S-BSST125
+      Title	Sample Submission
+      ReleaseDate	2021-02-12
 
       Study
 
       File	example.txt
-      md5	01A33621980DDF27A6538708D5E93C53
+      md5	20836FBD4CE5DC65F84CA2FBF938B926
 
       """
-    And the file "$ftpUrl/S-BSST/123/S-BSST123/S-BSST123.xml" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.xml" contains:
       """
-      <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST123">
-      <attributes>
-        <attribute>
-          <name>Title</name>
-          <value>Simple Submission with a file</value>
-        </attribute>
-      </attributes>
-      <section type="Study">
-        <files>
-          <file size="14">
-            <path>example.txt</path>
-            <type>file</type>
-            <attributes>
+      <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST125">
+        <attributes>
+          <attribute>
+            <name>Title</name>
+            <value>Sample Submission</value>
+          </attribute>
+          <attribute>
+            <name>ReleaseDate</name>
+            <value>2021-02-12</value>
+          </attribute>
+        </attributes>
+        <section type="Study">
+          <files>
+            <file size="16">
+              <path>example.txt</path>
+              <type>file</type>
+              <attributes>
                 <attribute>
                   <name>md5</name>
-                  <value>01A33621980DDF27A6538708D5E93C53</value>
+                  <value>20836FBD4CE5DC65F84CA2FBF938B926</value>
                 </attribute>
               </attributes>
             </file>

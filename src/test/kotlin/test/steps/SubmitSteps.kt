@@ -15,6 +15,7 @@ import org.springframework.http.MediaType.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import test.common.*
+import java.io.File
 import java.nio.file.Files
 import java.util.*
 import kotlin.io.path.createFile
@@ -131,6 +132,10 @@ class SubmitSteps {
     }
     @And("the file {string} contains:")
     fun assertTheFileContains(fileName: String, content: String) {
+        val file = File(cleanEntry(fileName,variables))
+        require(file.exists())
+
+        assertThat(file.readText()).isEqualTo(content)
     }
     private fun HttpHeaders.addTokenSession(): HttpHeaders {
         headers.add(TOKEN_SESSION_ID_HEADER, variables[TOKEN_SESSION_ID])
