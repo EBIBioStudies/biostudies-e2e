@@ -2,10 +2,10 @@ Feature: make a submission
 
   Background: Here is the setup for the scenarios
     Given the setup information
-      | environmentUrl | http://localhost:8080 |
-      | ftpUrl         | /Users/miguel/Biostudies/ftp              |
-      | userName       | admin_user@ebi.ac.uk  |
-      | userPassword   | 123456                |
+      | environmentUrl | http://localhost:8080        |
+      | ftpUrl         | /Users/miguel/Biostudies/ftp |
+      | userName       | admin_user@ebi.ac.uk         |
+      | userPassword   | 123456                       |
     And a http request with body:
       """
       {

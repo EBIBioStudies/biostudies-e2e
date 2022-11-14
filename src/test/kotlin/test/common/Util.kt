@@ -1,8 +1,5 @@
 package test.common
 
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-
 fun cleanEntry(entry: String, variables: Map<String, String>): String {
     var result = entry
     variables.forEach { (key, value) -> result = result.replace("\$${key}", value) }
