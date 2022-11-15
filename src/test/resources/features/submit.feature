@@ -13,11 +13,13 @@ Feature: make a submission
         "password":"$userPassword"
       }
       """
+    * header
+      | Content-Type | application/json |
     * url path "$environmentUrl/auth/login"
     * http method "POST"
     When json request is performed
     Then http status code "200" is returned
-    And http response the JSONPath value "$.sessid" is saved into "token"
+    And is extracted from http response the JSONPath value "$.sessid" and saved into "token"
 
   Scenario: submit a submission with a file
     Given the file "example.txt" with content
@@ -29,8 +31,8 @@ Feature: make a submission
     * url path "$environmentUrl/files/user"
     * http method "POST"
     * headers
-      | X-Session-Token | $token     |
-      | Submission_Type | text/plain |
+      | X-Session-Token | $token              |
+      | Content-Type    | multipart/form-data |
     When multipart request is performed
     Then http status code "200" is returned
 
@@ -49,6 +51,7 @@ Feature: make a submission
     * headers
       | X-Session-Token | $token     |
       | Submission_Type | text/plain |
+      | Content-Type    | text/plain |
     When request is performed
     Then http status code "200" is returned with body:
     """
