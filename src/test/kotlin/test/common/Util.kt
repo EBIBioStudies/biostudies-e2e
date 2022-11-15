@@ -1,7 +1,12 @@
 package test.common
 
-fun cleanEntry(entry: String, variables: Map<String, String>): String {
+fun getVariable(variableName: String): Any {
+    return requireNotNull(SubmitFeatureContext.variables[variableName])
+}
+
+fun cleanStringEntry(entry: String): String {
     var result = entry
-    variables.forEach { (key, value) -> result = result.replace("\$${key}", value) }
+    val stringVariable = SubmitFeatureContext.variables.filter { it.value is String } as Map<String, String>
+    stringVariable.forEach { (key, value) -> result = result.replace("\$${key}", value) }
     return result
 }

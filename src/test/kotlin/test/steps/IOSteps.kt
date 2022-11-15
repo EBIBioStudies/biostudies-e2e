@@ -3,10 +3,9 @@ package test.steps
 import io.cucumber.java.en.And
 import org.assertj.core.api.Assertions.assertThat
 import test.common.SubmitFeatureContext
-import test.common.cleanEntry
+import test.common.cleanStringEntry
 import java.io.File
 import kotlin.io.path.createFile
-import kotlin.io.path.name
 import kotlin.io.path.writeText
 
 class IOSteps {
@@ -15,16 +14,16 @@ class IOSteps {
 
     @And("the file {string} contains:")
     fun assertTheFileContains(fileName: String, content: String) {
-        val file = File(cleanEntry(fileName, variables))
+        val file = File(cleanStringEntry(fileName))
         require(file.exists())
 
         assertThat(file.readText()).isEqualTo(content)
     }
 
-    @And("the file {string} with content")
-    fun createFileWithContent(fileName: String, content: String) {
+    @And("the file {string} named {string} with content")
+    fun createFileWithContent(variableName: String, fileName: String, content: String) {
         val file = tempFile.toPath().resolve(fileName).createFile().apply { writeText(content) }
 
-        variables["fileName"] = file.name
+        variables[variableName] = file.toFile()
     }
 }

@@ -10,102 +10,96 @@ import org.assertj.core.api.Assertions.assertThat
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.RestTemplate
 import test.common.*
+import java.io.File
 
 class HttpSteps {
-    private val restTemplate = SubmitFeatureContext.restTemplate
-    private val variables = SubmitFeatureContext.variables
-    private val headers = SubmitFeatureContext.headers
-    private var formDataBodyRequest = SubmitFeatureContext.formDataBodyRequest
-    private val tempFile = SubmitFeatureContext.tempFile
+    private val restTemplate = RestTemplate()
+    private val headers = HttpHeaders()
+    private lateinit var bodyRequest: String
+    private lateinit var urlPath: String
+    private var formDataBodyRequest = LinkedMultiValueMap<String, Any>()
+    lateinit var httpMethod: HttpMethod
+    lateinit var httpStatusCode: String
 
     @Given("a http request with body:")
     fun defineBodyRequest(body: String) {
-        val cleanedBody = cleanEntry(body, variables)
-        variables[REQUEST_BODY] = cleanedBody
+        bodyRequest = cleanStringEntry(body)
     }
 
     @And("url path {string}")
     fun setUrlPath(path: String) {
-        val cleanedUrlPath = cleanEntry(path, variables)
-
-        variables[REQUEST_URL] = cleanedUrlPath
+        urlPath = cleanStringEntry(path)
     }
 
     @And("http method {string}")
     fun setHttpMethod(method: String) {
-        variables[HTTP_METHOD] = method
+        fun stringToHttpMethod(method: String): HttpMethod {
+            return when (method) {
+                "GET" -> HttpMethod.GET
+                "POST" -> HttpMethod.POST
+                "PUT" -> HttpMethod.PUT
+                "DELETE" -> HttpMethod.DELETE
+                else -> throw Exception("Http method \"${method}\" not found")
+            }
+        }
+        httpMethod = stringToHttpMethod(method)
     }
 
     @When("json request is performed")
     fun performJsonRequest() {
-        val httpEntity = HttpEntity(variables[REQUEST_BODY], headers)
+        val response = restTemplate.postForEntity(urlPath, HttpEntity(bodyRequest, headers), String::class.java)
 
-        val response =
-            restTemplate.postForEntity(requireNotNull(variables[REQUEST_URL]), httpEntity, String::class.java)
-
-        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
-        variables[RESPONSE_BODY] = requireNotNull(response.body)
+        httpStatusCode = response.statusCodeValue.toString()
+        SubmitFeatureContext.responseBody = requireNotNull(response.body)
     }
 
     @When("request is performed")
     fun performRequest() {
-        val httpEntity = HttpEntity(variables[REQUEST_BODY], headers)
+        val response = restTemplate.postForEntity(urlPath, HttpEntity(bodyRequest, headers), String::class.java)
 
-        val response =
-            restTemplate.postForEntity(requireNotNull(variables[REQUEST_URL]), httpEntity, String::class.java)
-
-        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
-        variables[RESPONSE_BODY] = requireNotNull(response.body)
+        httpStatusCode = response.statusCodeValue.toString()
+        SubmitFeatureContext.responseBody = requireNotNull(response.body)
     }
 
     @When("multipart request is performed")
     fun performMultipartFileRequest() {
-        val response =
-            restTemplate.postForEntity(
-                requireNotNull(variables[REQUEST_URL]),
-                HttpEntity(formDataBodyRequest, headers),
-                Void::class.java
-            )
+        val response = restTemplate.postForEntity(urlPath, HttpEntity(formDataBodyRequest, headers), Void::class.java)
 
-        variables[HTTP_STATUS_CODE] = response.statusCodeValue.toString()
-        variables.remove(REQUEST_BODY)
+        httpStatusCode = response.statusCodeValue.toString()
     }
 
     @And("a http request with form-data body:")
     fun setBodyInFormData(bodyTable: DataTable) {
         val map = bodyTable.asMap()
-        val file = tempFile.resolve(requireNotNull(map["files"]).removePrefix("$")).canonicalFile
+        val files = "files"
+        val cleanedFileName = requireNotNull(map[files]).replace("$", "")
 
-        formDataBodyRequest.add("files", FileSystemResource(file))
+        val file = getVariable(cleanedFileName) as File
+
+        formDataBodyRequest.add(files, FileSystemResource(file))
     }
 
     @Then("http status code {string} is returned")
     fun getHttpCode(statusCode: String) {
-        assertThat(variables[HTTP_STATUS_CODE]).isEqualTo(statusCode)
+        assertThat(httpStatusCode).isEqualTo(statusCode)
     }
-
 
     @And("header(s)")
     fun setHttpHeaders(table: DataTable) {
         headers.clear()
         val map = table.asMap()
 
-        map.forEach { (key, value) -> headers.add(key, cleanEntry(value, variables)) }
+        map.forEach { (key, value) -> headers.add(key, cleanStringEntry(value)) }
     }
 
     @Then("http status code {string} is returned with body:")
     fun getHttpStatusCodeAndBodyResponse(statusCode: String, body: String) {
-        assertThat(variables[HTTP_STATUS_CODE]).isEqualTo(statusCode)
-        assertThat(variables[RESPONSE_BODY]?.trim()).isEqualTo(body.trim())
-    }
-
-    private companion object {
-        const val REQUEST_BODY = "bodyRequest"
-        const val HTTP_METHOD = "httpMethod"
-        const val REQUEST_URL = "urlPath"
-        const val HTTP_STATUS_CODE = "httpStatusCode"
-        const val RESPONSE_BODY = "bodyResponse"
+        assertThat(httpStatusCode).isEqualTo(statusCode)
+        assertThat(SubmitFeatureContext.responseBody).isEqualTo(body)
     }
 }

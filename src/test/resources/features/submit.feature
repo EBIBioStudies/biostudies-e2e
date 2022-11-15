@@ -22,12 +22,12 @@ Feature: make a submission
     And is extracted from http response the JSONPath value "$.sessid" and saved into "token"
 
   Scenario: submit a submission with a file
-    Given the file "example.txt" with content
+    Given the file "submissionFile" named "example.txt" with content
     """
       Sample content
     """
     And a http request with form-data body:
-      | files | $example.txt |
+      | files | $submissionFile |
     * url path "$environmentUrl/files/user"
     * http method "POST"
     * headers
