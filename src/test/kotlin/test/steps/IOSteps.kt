@@ -5,12 +5,13 @@ import org.assertj.core.api.Assertions.assertThat
 import test.common.SubmitFeatureContext
 import test.common.cleanStringEntry
 import java.io.File
+import java.nio.file.Files
 import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 
 class IOSteps {
     private val variables = SubmitFeatureContext.variables
-    private val tempFile = SubmitFeatureContext.tempFile
+    private val tempFile = Files.createTempDirectory("tempFolder").toFile()
 
     @And("the file {string} contains:")
     fun assertTheFileContains(fileName: String, content: String) {
