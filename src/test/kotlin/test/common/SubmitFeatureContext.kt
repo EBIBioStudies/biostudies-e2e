@@ -2,7 +2,6 @@ package test.common
 
 object SubmitFeatureContext {
     val variables = mutableMapOf<String, Any>()
-    lateinit var responseBody: String
 
     fun cleanAndReplaceString(entry: String): String {
         var result = entry
@@ -14,5 +13,6 @@ object SubmitFeatureContext {
     fun createFormData(map: Map<String, String>): Map<String, Any> {
         return map.mapValues { variables[cleanString(it.value)] }.filterValues { it != null } as Map<String, Any>
     }
-    fun cleanString(entry: String): String = entry.replace("$", "")
+
+    private fun cleanString(entry: String): String = entry.replace("$", "")
 }

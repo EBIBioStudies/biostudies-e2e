@@ -18,8 +18,7 @@ Feature: make a submission
     * url path "$environmentUrl/auth/login"
     * http method "POST"
     When json request is performed
-    Then http status code "200" is returned
-    And is extracted from http response the JSONPath value "$.sessid" and saved into "token"
+    Then http status code "200" is returned and taken from response the JSONPath value "$.sessid" and saved into "token"
 
   Scenario: submit a submission with a file
     Given the file "submissionFile" named "example.txt" with content

@@ -1,5 +1,6 @@
 package test.steps
 
+import com.jayway.jsonpath.JsonPath
 import io.cucumber.datatable.DataTable
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
@@ -13,16 +14,17 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import test.common.SubmitFeatureContext.cleanAndReplaceString
 import test.common.SubmitFeatureContext.createFormData
-import test.common.SubmitFeatureContext.responseBody
+import test.common.SubmitFeatureContext.variables
 
 class HttpSteps {
     private val restTemplate = RestTemplate()
     private val headers = HttpHeaders()
+    private lateinit var responseBody: String
     private lateinit var bodyRequest: String
     private lateinit var urlPath: String
     private var formDataBodyRequest = LinkedMultiValueMap<String, Any>()
-    lateinit var httpMethod: HttpMethod
-    lateinit var httpStatusCode: String
+    private lateinit var httpMethod: HttpMethod
+    private lateinit var httpStatusCode: String
 
     @Given("a http request with body:")
     fun defineBodyRequest(body: String) {
@@ -82,6 +84,14 @@ class HttpSteps {
     fun getHttpCode(statusCode: String) {
         assertThat(httpStatusCode).isEqualTo(statusCode)
     }
+    @Then("http status code {string} is returned and taken from response the JSONPath value {string} and saved into {string}")
+    fun getHttpCode2(statusCode: String,jsonPath: String, name: String) {
+        assertThat(httpStatusCode).isEqualTo(statusCode)
+
+        val value = JsonPath.read<String>(responseBody, jsonPath)
+
+        variables[TOKEN_SESSION_ID] = value
+    }
 
     @And("header(s)")
     fun setHttpHeaders(table: DataTable) {
@@ -95,5 +105,9 @@ class HttpSteps {
     fun getHttpStatusCodeAndBodyResponse(statusCode: String, body: String) {
         assertThat(httpStatusCode).isEqualTo(statusCode)
         assertThat(responseBody).isEqualTo(body)
+    }
+
+    private companion object {
+        const val TOKEN_SESSION_ID = "token"
     }
 }
