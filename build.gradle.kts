@@ -13,12 +13,11 @@ repositories {
 }
 
 dependencies {
-    //Cucumber and junit
     testImplementation("io.cucumber:cucumber-java:7.8.1")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.8.1")
     testImplementation("org.junit.platform:junit-platform-suite:1.9.1")
 
-    testImplementation("org.springframework:spring-web:5.3.23")// enables restTemplate
+    testImplementation("org.springframework:spring-web:5.3.23")
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
     testImplementation("org.assertj:assertj-core:3.23.1")

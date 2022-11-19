@@ -2,14 +2,15 @@ package test.steps
 
 import com.jayway.jsonpath.JsonPath
 import io.cucumber.java.en.And
-import test.common.SubmitFeatureContext
+import test.common.SubmitFeatureContext.responseBody
+import test.common.SubmitFeatureContext.variables
 
 class JSONSteps {
     @And("is extracted from http response the JSONPath value {string} and saved into {string}")
     fun fromHttpResponseIsExtractByJSONPathAndSaveInVariableNamed(jsonPath: String, name: String) {
-        val value = JsonPath.read<String>(SubmitFeatureContext.responseBody, jsonPath)
+        val value = JsonPath.read<String>(responseBody, jsonPath)
 
-        SubmitFeatureContext.variables[TOKEN_SESSION_ID] = value
+        variables[TOKEN_SESSION_ID] = value
     }
 
     private companion object {
