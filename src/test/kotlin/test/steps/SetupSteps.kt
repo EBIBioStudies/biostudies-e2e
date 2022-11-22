@@ -2,11 +2,11 @@ package test.steps
 
 import io.cucumber.datatable.DataTable
 import io.cucumber.java.en.Given
-import test.common.SubmitFeatureContext.variables
+import test.common.ContextVariables
 
 class SetupSteps {
     @Given("the setup information")
     fun theSetupInformation(table: DataTable) {
-        variables.putAll(table.asMap())
+        ContextVariables.setAll(table.asMap())
     }
 }

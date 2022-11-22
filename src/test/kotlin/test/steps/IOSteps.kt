@@ -3,8 +3,8 @@ package test.steps
 import io.cucumber.java.en.And
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.core.io.FileSystemResource
-import test.common.SubmitFeatureContext.cleanAndReplaceString
-import test.common.SubmitFeatureContext.variables
+import test.common.ContextVariables
+import test.common.ContextVariables.cleanAndReplaceString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.createFile
@@ -25,6 +25,6 @@ class IOSteps {
     fun createFileWithContent(variableName: String, fileName: String, content: String) {
         val file = tempFile.toPath().resolve(fileName).createFile().apply { writeText(content) }
 
-        variables[variableName] = FileSystemResource(file.toFile())
+        ContextVariables[variableName] = FileSystemResource(file.toFile())
     }
 }

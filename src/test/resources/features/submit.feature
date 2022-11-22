@@ -1,6 +1,6 @@
-Feature: make a submission
+Feature: Submit a submission with a text file
 
-  Background: Here is the setup for the scenarios
+  Background:
     Given the setup information
       | environmentUrl | http://localhost:8080        |
       | ftpUrl         | /Users/miguel/Biostudies/ftp |
@@ -17,8 +17,9 @@ Feature: make a submission
       | Content-Type | application/json |
     * url path "$environmentUrl/auth/login"
     * http method "POST"
-    When json request is performed
-    Then http status code "200" is returned and taken from response the JSONPath value "$.sessid" and saved into "token"
+    When request is performed
+    Then http status code "200" is returned
+    And take from response the JSONPath value "$.sessid" and saved into "token"
 
   Scenario: submit a submission with a file
     Given the file "submissionFile" named "example.txt" with content
