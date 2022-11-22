@@ -19,7 +19,7 @@ Feature: Submit a submission with a text file
     * http method "POST"
     When request is performed
     Then http status code "200" is returned
-    And take from response the JSONPath value "$.sessid" and saved into "token"
+    And the JSONPath value "$.sessid" from response is saved into "token"
 
   Scenario: submit a submission with a file
     Given the file "submissionFile" named "example.txt" with content

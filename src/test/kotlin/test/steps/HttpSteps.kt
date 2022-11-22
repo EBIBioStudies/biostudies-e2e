@@ -13,7 +13,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import test.common.ContextVariables
-import test.common.ContextVariables.getValuedString
+import test.common.ContextVariables.getString
 
 class HttpSteps {
     private val restTemplate = RestTemplate()
@@ -27,12 +27,12 @@ class HttpSteps {
 
     @Given("a http request with body:")
     fun setBodyRequest(body: String) {
-        bodyRequest = getValuedString(body)
+        bodyRequest = getString(body)
     }
 
     @And("url path {string}")
     fun setUrlPath(path: String) {
-        urlPath = getValuedString(path)
+        urlPath = getString(path)
     }
 
     @And("http method {string}")
@@ -53,7 +53,7 @@ class HttpSteps {
     fun setBodyInFormData(bodyTable: DataTable) {
         formDataBodyRequest = LinkedMultiValueMap()
         bodyTable.asMap()
-            .mapValues { ContextVariables[it.value.replace("$", "")] }
+            .mapValues { ContextVariables[it.value] }
             .forEach { formDataBodyRequest.add(it.key, it.value) }
     }
 
@@ -61,10 +61,10 @@ class HttpSteps {
     fun setHttpHeaders(table: DataTable) {
         headers = HttpHeaders()
 
-        table.asMap().forEach { (key, value) -> headers.add(key, getValuedString(value)) }
+        table.asMap().forEach { (key, value) -> headers.add(key, getString(value)) }
     }
 
-    @Then("take from response the JSONPath value {string} and saved into {string}")
+    @Then("the JSONPath value {string} from response is saved into {string}")
     fun setSessionToken(jsonPath: String, name: String) {
         val value = JsonPath.read<String>(responseBody, jsonPath)
 
