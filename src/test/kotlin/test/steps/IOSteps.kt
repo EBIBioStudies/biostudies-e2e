@@ -4,7 +4,7 @@ import io.cucumber.java.en.And
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.core.io.FileSystemResource
 import test.common.ContextVariables
-import test.common.ContextVariables.cleanAndReplaceString
+import test.common.ContextVariables.getValuedString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.createFile
@@ -15,7 +15,7 @@ class IOSteps {
 
     @And("the file {string} contains:")
     fun assertTheFileContains(fileName: String, content: String) {
-        val file = File(cleanAndReplaceString(fileName))
+        val file = File(getValuedString(fileName))
         require(file.exists())
 
         assertThat(file.readText()).isEqualTo(content)

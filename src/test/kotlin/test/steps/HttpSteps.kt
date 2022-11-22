@@ -13,7 +13,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import test.common.ContextVariables
-import test.common.ContextVariables.cleanAndReplaceString
+import test.common.ContextVariables.getValuedString
 
 class HttpSteps {
     private val restTemplate = RestTemplate()
@@ -27,12 +27,12 @@ class HttpSteps {
 
     @Given("a http request with body:")
     fun setBodyRequest(body: String) {
-        bodyRequest = cleanAndReplaceString(body)
+        bodyRequest = getValuedString(body)
     }
 
     @And("url path {string}")
     fun setUrlPath(path: String) {
-        urlPath = cleanAndReplaceString(path)
+        urlPath = getValuedString(path)
     }
 
     @And("http method {string}")
@@ -61,7 +61,7 @@ class HttpSteps {
     fun setHttpHeaders(table: DataTable) {
         headers = HttpHeaders()
 
-        table.asMap().forEach { (key, value) -> headers.add(key, cleanAndReplaceString(value)) }
+        table.asMap().forEach { (key, value) -> headers.add(key, getValuedString(value)) }
     }
 
     @Then("take from response the JSONPath value {string} and saved into {string}")

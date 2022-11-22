@@ -15,7 +15,7 @@ object ContextVariables {
         variables.putAll(map)
     }
 
-    fun cleanAndReplaceString(entry: String): String {
+    fun getValuedString(entry: String): String {
         var result = entry
         val stringVariable = variables.filter { it.value is String } as Map<String, String>
         stringVariable.forEach { (key, value) -> result = result.replace("\$${key}", value) }
