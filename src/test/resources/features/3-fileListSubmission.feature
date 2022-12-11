@@ -9,6 +9,7 @@ Feature: Submit submissions with file lists
       | ftpUrl         | /Users/miguel/Biostudies/ftp |
       | userName       | admin_user@ebi.ac.uk         |
       | userPassword   | 123456                       |
+    * the variable "storageMode" with value "NFS"
     And a http request with body:
       """
       {
@@ -36,9 +37,34 @@ Feature: Submit submissions with file lists
     """
     * the variable "submission" with value
     """
-    {"accno": "S-BSST130", "attributes": [{"name": "Title", "value": "Test Submission"},{"name": "ReleaseDate", "value": "2021-02-12"}], "section": {"accno": "SECT-001", "type": "Study", "attributes": [{"name": "Title", "value": "Root Section"}, {"name": "File List", "value": "fileList.tsv"}]}}
+    {
+      "accno": "S-BSST130",
+      "attributes": [
+        {
+          "name": "Title",
+          "value": "Test Submission"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2021-02-12"
+        }
+      ],
+      "section": {
+        "accno": "SECT-001",
+        "type": "Study",
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Root Section"
+          },
+          {
+            "name": "File List",
+            "value": "fileList.tsv"
+          }
+        ]
+      }
+    }
     """
-    * the variable "storageMode" with value "NFS"
     And a http request with form-data body:
       | files       | $fileList    | $fileListFile |
       | submission  | $submission  |               |
@@ -77,21 +103,33 @@ Feature: Submit submissions with file lists
       "type" : "submission"
     }
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/file4.txt" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/file4.txt" has content:
     """
     File content
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.json" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.json" has JSON content:
     """
-    [{"path":"file4.txt","size":12,"attributes":[{"name":"GEN","value":"ABC"}],"type":"file"}]
+    [
+      {
+        "path": "file4.txt",
+        "size": 12,
+        "attributes": [
+          {
+            "name": "GEN",
+            "value": "ABC"
+          }
+        ],
+        "type": "file"
+      }
+    ]
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.tsv" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.tsv" has content:
     """
     Files	GEN
     file4.txt	ABC
 
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.xml" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/Files/fileList.xml" has content:
     """
     <?xml version='1.0' encoding='UTF-8'?><table><file size="12">
       <path>file4.txt</path>
@@ -105,7 +143,7 @@ Feature: Submit submissions with file lists
     </file>
     </table>
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.json" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.json" has content:
     """
     {
       "accno" : "S-BSST130",
@@ -130,7 +168,7 @@ Feature: Submit submissions with file lists
       "type" : "submission"
     }
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.tsv" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.tsv" has content:
     """
     Submission	S-BSST130
     Title	Test Submission
@@ -141,7 +179,7 @@ Feature: Submit submissions with file lists
     File List	fileList.tsv
 
     """
-    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.xml" contains:
+    And the file "$ftpUrl/S-BSST/130/S-BSST130/S-BSST130.xml" has content:
     """
     <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST130">
       <attributes>

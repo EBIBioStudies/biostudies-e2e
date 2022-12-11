@@ -52,21 +52,11 @@ class HttpSteps {
 
     @And("a http request with form-data body:")
     fun setBodyInFormData(bodyTable: Map<String, List<String?>>) {
-        fun unwrapIfOne(input: List<String?>): Any {
-            val filtered = input.filterNotNull().apply { require(this.isNotEmpty()) }
-            return if (filtered.size == 1) ContextVariables[filtered.first()] else filtered.map { ContextVariables[it] }
-        }
-
-        fun addToFormData(map: Map.Entry<String, Any>) {
-            if (map.value is List<*>) {
-                (map.value as List<*>).forEach { formDataBodyRequest.add(map.key, it) }
-            } else {
-                formDataBodyRequest.add(map.key, map.value)
-            }
-        }
         formDataBodyRequest = LinkedMultiValueMap()
 
-        bodyTable.mapValues { unwrapIfOne(it.value) }.forEach { map -> addToFormData(map) }
+        bodyTable.forEach { map ->
+            map.value.filterNotNull().forEach { formDataBodyRequest.add(map.key, ContextVariables[it]) }
+        }
     }
 
     @And("header(s)")
