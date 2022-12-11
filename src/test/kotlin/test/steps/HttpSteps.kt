@@ -51,14 +51,20 @@ class HttpSteps {
     }
 
     @And("a http request with form-data body:")
-    fun setBodyInFormData(bodyTable: Map<String, List<String>>) {
-        fun unwrapIfJustOne(input: List<String?>): Any {
+    fun setBodyInFormData(bodyTable: Map<String, List<String?>>) {
+        fun unwrapIfOne(input: List<String?>): Any {
             val filtered = input.filterNotNull().apply { require(this.isNotEmpty()) }
             return if (filtered.size == 1) ContextVariables[filtered.first()] else filtered.map { ContextVariables[it] }
         }
         formDataBodyRequest = LinkedMultiValueMap()
 
-        bodyTable.mapValues { unwrapIfJustOne(it.value) }.forEach { formDataBodyRequest.add(it.key, it.value) }
+        bodyTable.mapValues { unwrapIfOne(it.value) }.forEach { map ->
+            if (map.value is List<*>) {
+                (map.value as List<*>).forEach { formDataBodyRequest.add(map.key, it) }
+            } else {
+                formDataBodyRequest.add(map.key, map.value)
+            }
+        }
     }
 
     @And("header(s)")
@@ -85,9 +91,10 @@ class HttpSteps {
 
     @When("multipart request is performed")
     fun performMultipartFileRequest() {
-        val response = restTemplate.postForEntity(urlPath, HttpEntity(formDataBodyRequest, headers), Void::class.java)
+        val response = restTemplate.postForEntity(urlPath, HttpEntity(formDataBodyRequest, headers), String::class.java)
 
         httpStatusCode = response.statusCodeValue.toString()
+        response.body?.let { responseBody = it }
     }
 
     @Then("http status code {string} is returned")

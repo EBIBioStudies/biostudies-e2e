@@ -38,7 +38,7 @@ Feature: Submit a submission with a text file
 
     Given a http request with body:
       """
-      Submission	S-BSST125
+      Submission	S-BSST129
       Title	Sample Submission
       ReleaseDate	2021-02-12
 
@@ -56,7 +56,7 @@ Feature: Submit a submission with a text file
     Then http status code "200" is returned with body:
     """
     {
-      "accno" : "S-BSST125",
+      "accno" : "S-BSST129",
       "attributes" : [ {
         "name" : "Title",
         "value" : "Sample Submission"
@@ -75,14 +75,14 @@ Feature: Submit a submission with a text file
       "type" : "submission"
     }
     """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/Files/example.txt" contains:
+    And the file "$ftpUrl/S-BSST/129/S-BSST129/Files/example.txt" contains:
       """
         Sample content
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.json" contains:
+    And the file "$ftpUrl/S-BSST/129/S-BSST129/S-BSST129.json" contains:
       """
       {
-        "accno" : "S-BSST125",
+        "accno" : "S-BSST129",
         "attributes" : [ {
           "name" : "Title",
           "value" : "Sample Submission"
@@ -101,9 +101,9 @@ Feature: Submit a submission with a text file
         "type" : "submission"
       }
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.tsv" contains:
+    And the file "$ftpUrl/S-BSST/129/S-BSST129/S-BSST129.tsv" contains:
       """
-      Submission	S-BSST125
+      Submission	S-BSST129
       Title	Sample Submission
       ReleaseDate	2021-02-12
 
@@ -112,9 +112,9 @@ Feature: Submit a submission with a text file
       File	example.txt
 
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.xml" contains:
+    And the file "$ftpUrl/S-BSST/129/S-BSST129/S-BSST129.xml" contains:
       """
-      <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST125">
+      <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST129">
         <attributes>
           <attribute>
             <name>Title</name>
