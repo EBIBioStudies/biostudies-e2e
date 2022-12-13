@@ -8,13 +8,14 @@ import test.common.ContextVariables.getString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.createFile
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
 
 class IOSteps {
     private val tempFile = Files.createTempDirectory("tempFolder").toFile()
 
-    @And("the file {string} contains:")
-    fun assertTheFileContains(fileName: String, content: String) {
+    @And("the file {string} has content:")
+    fun assertFileContent(fileName: String, content: String) {
         val file = File(getString(fileName))
         require(file.exists())
 
@@ -23,7 +24,8 @@ class IOSteps {
 
     @And("the file {string} named {string} with content")
     fun createFileWithContent(variableName: String, fileName: String, content: String) {
-        val file = tempFile.toPath().resolve(fileName).createFile().apply { writeText(content) }
+        val file = tempFile.toPath().resolve(fileName).apply { deleteIfExists() }
+        file.createFile().apply { writeText(content) }
 
         ContextVariables[variableName] = FileSystemResource(file.toFile())
     }

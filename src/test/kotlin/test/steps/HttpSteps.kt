@@ -51,11 +51,12 @@ class HttpSteps {
     }
 
     @And("a http request with form-data body:")
-    fun setBodyInFormData(bodyTable: DataTable) {
+    fun setBodyInFormData(bodyTable: Map<String, List<String?>>) {
         formDataBodyRequest = LinkedMultiValueMap()
-        bodyTable.asMap()
-            .mapValues { ContextVariables[it.value] }
-            .forEach { formDataBodyRequest.add(it.key, it.value) }
+
+        bodyTable.forEach { map ->
+            map.value.filterNotNull().forEach { formDataBodyRequest.add(map.key, ContextVariables[it]) }
+        }
     }
 
     @And("header(s)")

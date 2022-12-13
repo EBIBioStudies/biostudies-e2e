@@ -79,11 +79,11 @@ Feature: Submit a submission with a text file
       "type" : "submission"
     }
     """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/Files/example.txt" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/Files/example.txt" has content:
       """
         Sample content
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.json" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.json" has content:
       """
       {
         "accno" : "S-BSST125",
@@ -109,7 +109,7 @@ Feature: Submit a submission with a text file
         "type" : "submission"
       }
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.tsv" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.tsv" has content:
       """
       Submission	S-BSST125
       Title	Sample Submission
@@ -121,7 +121,7 @@ Feature: Submit a submission with a text file
       md5	20836FBD4CE5DC65F84CA2FBF938B926
 
       """
-    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.xml" contains:
+    And the file "$ftpUrl/S-BSST/125/S-BSST125/S-BSST125.xml" has content:
       """
       <?xml version='1.0' encoding='UTF-8'?><submission accno="S-BSST125">
         <attributes>
