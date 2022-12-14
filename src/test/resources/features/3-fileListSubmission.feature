@@ -25,7 +25,7 @@ Feature: 3 Submit submissions with file lists
     Then http status code "200" is returned
     And the JSONPath value "$.sessid" from response is saved into "token"
 
-  Scenario: Submit a JSON submission with a TSV file list
+  Scenario: 3.1 Submit a JSON submission with a TSV file list
     Given the file "fileList" named "fileList.tsv" with content
     """
     Files	GEN
