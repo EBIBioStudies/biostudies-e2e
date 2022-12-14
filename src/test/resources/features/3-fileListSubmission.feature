@@ -1,4 +1,4 @@
-Feature: Submit submissions with file lists
+Feature: 3 Submit submissions with file lists
 
   Shows JSON submissions containing different fileList formats.
   Also submission considering empty files list and reusing previous version fileLists.
