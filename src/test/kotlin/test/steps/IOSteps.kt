@@ -10,6 +10,7 @@ import test.common.ContextVariables.getString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.createFile
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
 
 class IOSteps {
@@ -33,7 +34,8 @@ class IOSteps {
 
     @And("the file {string} named {string} with content")
     fun createFileWithContent(variableName: String, fileName: String, content: String) {
-        val file = tempFile.toPath().resolve(fileName).createFile().apply { writeText(content) }
+        val file = tempFile.toPath().resolve(fileName).apply { deleteIfExists() }
+        file.createFile().apply { writeText(content) }
 
         ContextVariables[variableName] = FileSystemResource(file.toFile())
     }
