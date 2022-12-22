@@ -24,7 +24,7 @@ Feature: 5 Resubmit submission.
     Then http status code "200" is returned
     And the JSONPath value "$.sessid" from response is saved into "token"
 
-  Scenario: 5.1 resubmit existing submission with changed files.
+  Scenario: 5-1 resubmit existing submission
     # UPLOAD FILES TO BASE FOLDER
     Given the file "fileList" named "file-list.tsv" with content
     """
@@ -153,13 +153,13 @@ Feature: 5 Resubmit submission.
     """
     Subsection file content.
     """
-    And the file "$ftpUrl/S-BSST/500/S-BSST500/Files/a/Files/a/fileFileList.pdf" has content:
+    And the file "$ftpUrl/S-BSST/500/S-BSST500/Files/a/fileFileList.pdf" has content:
     """
     File in file list content.
     """
 
     # UPLOAD CHANGED FILE
-    Given the file "subSectionFile" named "fileSubSection.txt" with content
+    Given the file "subSectionFile" named "fileSubSection.txt" is modified with the new content
     """
     Subsection file NEW content.
     """
@@ -260,7 +260,7 @@ Feature: 5 Resubmit submission.
     """
     Subsection file NEW content.
     """
-    And the file "$ftpUrl/S-BSST/500/S-BSST500/Files/a/Files/a/fileFileList.pdf" has content:
+    And the file "$ftpUrl/S-BSST/500/S-BSST500/Files/a/fileFileList.pdf" has content:
     """
     File in file list content.
     """
