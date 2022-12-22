@@ -150,7 +150,7 @@ Feature:
     ]
     """
 
-    # UPLOAD FILE
+    # UPLOAD CHANGED FILE
     Given the file "file" named "File1.txt" with content
     """
     content file 1 updated
