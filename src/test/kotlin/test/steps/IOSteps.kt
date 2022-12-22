@@ -9,7 +9,6 @@ import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteExisting
-import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 class IOSteps {
@@ -32,9 +31,7 @@ class IOSteps {
 
     @And("the file {string} named {string} is modified with the new content")
     fun changeFile(variableName: String, fileName: String, newContent: String) {
-        val file = tempFile.toPath().resolve(fileName)
-        require(file.exists())
-        file.deleteExisting()
+        val file = tempFile.toPath().resolve(fileName).apply { deleteExisting() }
         val newFile = file.createFile().apply { writeText(newContent) }
 
         ContextVariables[variableName] = FileSystemResource(newFile.toFile())
