@@ -2,6 +2,8 @@ package test.steps
 
 import io.cucumber.java.en.And
 import org.assertj.core.api.Assertions.assertThat
+import org.skyscreamer.jsonassert.JSONAssert
+import org.skyscreamer.jsonassert.JSONCompareMode
 import org.springframework.core.io.FileSystemResource
 import test.common.ContextVariables
 import test.common.ContextVariables.getString
@@ -15,11 +17,19 @@ class IOSteps {
     private val tempFile = Files.createTempDirectory("tempFolder").toFile()
 
     @And("the file {string} has content:")
-    fun assertFileContent(fileName: String, content: String) {
+    fun assertFileHasContent(fileName: String, expectedContent: String) {
         val file = File(getString(fileName))
         require(file.exists())
 
-        assertThat(file.readText()).isEqualTo(content)
+        assertThat(file.readText()).isEqualTo(expectedContent)
+    }
+
+    @And("the file {string} has JSON content:")
+    fun assertFileHasJSONContent(fileName: String, expectedContent: String) {
+        val file = File(getString(fileName))
+        require(file.exists())
+
+        JSONAssert.assertEquals("invalid attribute json", file.readText(), expectedContent, JSONCompareMode.LENIENT)
     }
 
     @And("the file {string} named {string} with content")

@@ -83,9 +83,10 @@ class HttpSteps {
 
     @When("multipart request is performed")
     fun performMultipartFileRequest() {
-        val response = restTemplate.postForEntity(urlPath, HttpEntity(formDataBodyRequest, headers), Void::class.java)
+        val response = restTemplate.postForEntity(urlPath, HttpEntity(formDataBodyRequest, headers), String::class.java)
 
         httpStatusCode = response.statusCodeValue.toString()
+        response.body?.let { responseBody = it }
     }
 
     @Then("http status code {string} is returned")
